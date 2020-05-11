@@ -84,7 +84,7 @@ def _load_ucr_dataset(dataset, path):
     return bunch
 
 def _load_dataset(name, archive, return_X_y):
-    r"""Load and return dataset.
+    """Load and return dataset.
 
     Parameters
     ----------
@@ -120,15 +120,17 @@ def _load_dataset(name, archive, return_X_y):
     (data_train, data_test, target_train, target_test) : tuple if ``return_X_y`` is True
 
     """  # noqa: E501
-    module_path = os.path.dirname(__file__)
-    folder = os.path.join(module_path, 'cached_datasets', archive, '')
-    if archive == 'UCR':
-        bunch = _load_ucr_dataset(name, folder)
-    # else:
-    #     bunch = _load_uea_dataset(name, folder)
-    if return_X_y:
-        return (bunch.data_train, bunch.data_test,
-                bunch.target_train, bunch.target_test)
+    directory = os.path.dirname(__file__)
+    folder = os.path.join(directory, "Gunpoint")
+    # if archive == 'Gunpoint':
+    #     bunch = _load_ucr_dataset(name, folder)
+    # # else:
+    # #     bunch = _load_uea_dataset(name, folder)
+    # if return_X_y:
+    #     return (bunch.data_train, bunch.data_test,
+    #             bunch.target_train, bunch.target_test)
+
+    bunch = _load_ucr_dataset("GunPoint", folder)
     return bunch
 
 def load_gunpoint(return_X_y=False):
