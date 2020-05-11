@@ -7,10 +7,9 @@ import numpy as np
 from sklearn.base import BaseEstimator as be
 from sklearn.base import TransformerMixin as tm
 from sklearn.utils.validation import check_array as ca
-from ..preprocessing import KBinsDiscretizer as kbd
 
 
-class SymbolicAggregateApproximation(BaseEstimator, TransformerMixin):
+class SymbolicAggregateApproximation(be, tm):
     """Symbolic Aggregate approXimation.
 
     Parameters

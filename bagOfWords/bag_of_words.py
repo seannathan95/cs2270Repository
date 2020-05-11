@@ -9,7 +9,7 @@ from sklearn.utils.validation import check_array
 
 
 import warnings
-from utilities.saxpaa import PiecewiseAggregateApproximation
+from ...piecewise import PiecewiseAggregateApproximation
 from saxGeneration.symbolApprox import SymbolicAggregateApproximation
 
 
@@ -19,13 +19,13 @@ from utilities.segmentation import windowed_view
 
 class BagOfWords(be, mt):
 
-    def __init__(self, window_len=0.5, word_len=0.5, num_spots=4,
+    def __init__(self, window_size=0.5, word_size=0.5, num_letters=4,
                  strat='normal', num_reduct=True, step_size=1,
                  normalized_mean=True, normalized_standard=True, overlap=True,
                  alphabet=None):
-        self.window_len = window_len
-        self.word_len = word_len
-        self.num_spots = num_spots
+        self.window_size = window_size
+        self.word_size = word_size
+        self.num_letters = num_letters
         self.strat = strat
         self.num_reduct = num_reduct
         self.step_size = step_size
@@ -48,14 +48,14 @@ class BagOfWords(be, mt):
         
         X = check_array(X, dtype='float64')
         samples, timestamps = X.shape
-        window_len, word_len, step_size, alphabet = self.check_params(
+        window_size, word_size, step_size, alphabet = self.check_params(
             timestamps)
-        windows = (timestamps - window_len + step_size) // step_size
+        windows = (timestamps - window_size + step_size) // step_size
 
         # Extract subsequences using a sliding window
         X_window = windowed_view(
-            X, samples, timestamps, window_len, step_size
-        ).reshape(samples * windows, window_len)
+            X, samples, timestamps, window_size, step_size
+        ).reshape(samples * windows, window_size)
 
         # Create a pipeline with three steps: standardization, PAA, SAX
         pipeline = make_pipeline(
@@ -63,7 +63,7 @@ class BagOfWords(be, mt):
                 with_mean=self.normalized_mean, with_std=self.normalized_standard
             ),
             PiecewiseAggregateApproximation(
-                window_len=None, output_size=word_len,
+                window_size=None, output_size=word_size,
                 overlap=self.overlap
             ),
             SymbolicAggregateApproximation(
@@ -72,7 +72,7 @@ class BagOfWords(be, mt):
             )
         )
         X_sax = pipeline.fit_transform(X_window).reshape(
-            samples, windows, word_len)
+            samples, windows, word_size)
 
         # Join letters to make words
         X_word = np.asarray([[''.join(X_sax[i, j])
@@ -91,52 +91,52 @@ class BagOfWords(be, mt):
         return X_bow
 
     def check_params(self, timestamps):
-        if not isinstance(self.window_len,
+        if not isinstance(self.window_size,
                           (int, np.integer, float, np.floating)):
-            raise TypeError("'window_len' must be an integer or a float.")
-        if isinstance(self.window_len, (int, np.integer)):
-            if not 1 <= self.window_len <= timestamps:
+            raise TypeError("'window_size' must be an integer or a float.")
+        if isinstance(self.window_size, (int, np.integer)):
+            if not 1 <= self.window_size <= timestamps:
                 raise ValueError(
-                    "If 'window_len' is an integer, it must be greater "
+                    "If 'window_size' is an integer, it must be greater "
                     "than or equal to 1 and lower than or equal to "
-                    "timestamps (got {0}).".format(self.window_len)
+                    "timestamps (got {0}).".format(self.window_size)
                 )
-            window_len = self.window_len
+            window_size = self.window_size
         else:
-            if not 0 < self.window_len <= 1:
+            if not 0 < self.window_size <= 1:
                 raise ValueError(
-                    "If 'window_len' is a float, it must be greater "
+                    "If 'window_size' is a float, it must be greater "
                     "than 0 and lower than or equal to 1 "
-                    "(got {0}).".format(self.window_len)
+                    "(got {0}).".format(self.window_size)
                 )
-            window_len = ceil(self.window_len * timestamps)
+            window_size = ceil(self.window_size * timestamps)
 
-        if not isinstance(self.word_len,
+        if not isinstance(self.word_size,
                           (int, np.integer, float, np.floating)):
-            raise TypeError("'word_len' must be an integer or a float.")
-        if isinstance(self.word_len, (int, np.integer)):
-            if not 1 <= self.word_len <= window_len:
+            raise TypeError("'word_size' must be an integer or a float.")
+        if isinstance(self.word_size, (int, np.integer)):
+            if not 1 <= self.word_size <= window_size:
                 raise ValueError(
-                    "If 'word_len' is an integer, it must be greater "
+                    "If 'word_size' is an integer, it must be greater "
                     "than or equal to 1 and lower than or equal to "
-                    "window_len (got {0}).".format(self.word_len)
+                    "window_size (got {0}).".format(self.word_size)
                 )
-            word_len = self.word_len
+            word_size = self.word_size
         else:
-            if not 0 < self.word_len <= 1:
+            if not 0 < self.word_size <= 1:
                 raise ValueError(
-                    "If 'word_len' is a float, it must be greater "
+                    "If 'word_size' is a float, it must be greater "
                     "than 0 and lower than or equal to 1 "
-                    "(got {0}).".format(self.word_len)
+                    "(got {0}).".format(self.word_size)
                 )
-            word_len = ceil(self.word_len * window_len)
+            word_size = ceil(self.word_size * window_size)
 
         if not isinstance(self.num_spots, (int, np.integer)):
             raise TypeError("'num_spots' must be an integer.")
-        if not 2 <= self.num_spots <= min(word_len, 26):
+        if not 2 <= self.num_spots <= min(word_size, 26):
             raise ValueError(
                 "'num_spots' must be greater than or equal to 2 and lower than "
-                "or equal to min(word_len, 26) (got {0})."
+                "or equal to min(word_size, 26) (got {0})."
                 .format(self.num_spots)
             )
 

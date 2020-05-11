@@ -4,6 +4,7 @@ from sklearn.preprocessing import MinMaxScaler as SklearnMinMaxScaler
 from sklearn.preprocessing import MaxAbsScaler as SklearnMaxAbsScaler
 from sklearn.preprocessing import RobustScaler as SklearnRobustScaler
 from sklearn.utils.validation import check_array
+import numpy as np
 
 
 class StandardScaler(BaseEstimator, TransformerMixin):

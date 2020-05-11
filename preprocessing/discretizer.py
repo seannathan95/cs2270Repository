@@ -1,7 +1,47 @@
 from sklearn.utils.validation import check_array as ca
 from sklearn.base import BaseEstimator as be
 from sklearn.base import TransformerMixin as tm
+import numpy as np
+from numba import njit, prange
 
+from warnings import warn
+
+
+@njit()
+def _uniform_bins(sample_min, sample_max, n_samples, n_bins):
+    bin_edges = np.empty((n_bins - 1, n_samples))
+    for i in prange(n_samples):
+        bin_edges[:, i] = np.linspace(
+            sample_min[i], sample_max[i], n_bins + 1)[1:-1]
+    return bin_edges
+
+
+@njit()
+def _digitize_1d(X, bins, n_samples, n_timestamps):
+    X_digit = np.empty((n_samples, n_timestamps))
+    for i in prange(n_samples):
+        X_digit[i] = np.digitize(X[i], bins, right=True)
+    return X_digit
+
+
+@njit()
+def _digitize_2d(X, bins, n_samples, n_timestamps):
+    X_digit = np.empty((n_samples, n_timestamps))
+    for i in prange(n_samples):
+        X_digit[i] = np.digitize(X[i], bins[i], right=True)
+    return X_digit
+
+
+def _digitize(X, bins):
+    n_samples, n_timestamps = X.shape
+    if isinstance(bins, tuple):
+        X_binned = _digitize_2d(X, bins, n_samples, n_timestamps)
+    else:
+        if bins.ndim == 1:
+            X_binned = _digitize_1d(X, bins, n_samples, n_timestamps)
+        else:
+            X_binned = _digitize_2d(X, bins, n_samples, n_timestamps)
+    return X_binned.astype('int64')
 
 class KBinsDiscretizer(be, tm):
 
