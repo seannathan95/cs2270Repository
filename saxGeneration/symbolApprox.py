@@ -19,8 +19,8 @@ class SymbolicAggregateApproximation(BaseEstimator, TransformerMixin):
         The number of bins to produce. It must be between 2 and
         ``min(num_stamps, 26)``.
 
-    strat : 'uniform', 'quantile' or 'normal' (default = 'quantile')
-        strat used to define the widths of the bins:
+    strategy : 'uniform', 'quantile' or 'normal' (default = 'quantile')
+        strategy used to define the widths of the bins:
 
         - 'uniform': All bins in each sample have identical widths
         - 'quantile': All bins in each sample have the same number of points
@@ -38,19 +38,19 @@ class SymbolicAggregateApproximation(BaseEstimator, TransformerMixin):
 
     Examples
     --------
-    >>> from pyts.approximation import SymbolicAggregateApproximation
-    >>> X = [[0, 4, 2, 1, 7, 6, 3, 5],
-    ...      [2, 5, 4, 5, 3, 4, 2, 3]]
-    >>> transformer = SymbolicAggregateApproximation()
-    >>> print(transformer.transform(X))
-    [['a' 'c' 'b' 'a' 'd' 'd' 'b' 'c']
-     ['a' 'd' 'c' 'd' 'b' 'c' 'a' 'b']]
+    # >>> from pyts.approximation import SymbolicAggregateApproximation
+    # >>> X = [[0, 4, 2, 1, 7, 6, 3, 5],
+    # ...      [2, 5, 4, 5, 3, 4, 2, 3]]
+    # >>> transformer = SymbolicAggregateApproximation()
+    # >>> print(transformer.transform(X))
+    # [['a' 'c' 'b' 'a' 'd' 'd' 'b' 'c']
+    #  ['a' 'd' 'c' 'd' 'b' 'c' 'a' 'b']]
+    #
+    # """
 
-    """
-
-    def __init__(self, num_letters=4, strat ='quantile', alphabet=None):
+    def __init__(self, num_letters=4, strategy='quantile', alphabet=None):
         self.num_letters = num_letters
-        self.strat = strat
+        self.strategy = strategy
         self.alphabet = alphabet
 
     def fit(self, X=None, y=None):
@@ -63,29 +63,16 @@ class SymbolicAggregateApproximation(BaseEstimator, TransformerMixin):
         num_stamps = X.shape[1]
 
         alphabet = self.check_params(self, num_stamps)
-        discretizer = kbd(num_letters = self.num_letters, strat = self.strat)
+        discretizer = kbd(num_letters=self.num_letters, strategy=self.strategy)
 
-        index = descretizer.fit_transform(X)
+        index = discretizer.fit_transform(X)
 
-        if isinstance(alphabet, str) == False:
+        if not isinstance(alphabet, str):
             return alphabet[index]
         else:
             return index
 
-
-
-        # X = check_array(X, dtype='float64')
-        # num_stamps = X.shape[1]
-        # alphabet = self._check_params(num_stamps)
-        # discretizer = KBinsDiscretizer(
-        #     num_letters=self.num_letters, strat=self.strat)
-        # indices = discretizer.fit_transform(X)
-        # if isinstance(alphabet, str):
-        #     return indices
-        # else:
-        #     return alphabet[indices]
-
-    def _check_params(self, num_stamps):
+    def check_params(self, num_stamps):
         if not isinstance(self.num_letters, (int, np.integer)):
             raise TypeError("'num_letters' must be an integer.")
         if not 2 <= self.num_letters <= min(num_stamps, 26):
@@ -94,9 +81,9 @@ class SymbolicAggregateApproximation(BaseEstimator, TransformerMixin):
                 "or equal to min(num_stamps, 26) (got {0})."
                 .format(self.num_letters)
             )
-        if self.strat not in ['uniform', 'quantile', 'normal']:
-            raise ValueError("'strat' must be either 'uniform', 'quantile' "
-                             "or 'normal' (got {0})".format(self.strat))
+        if self.strategy not in ['uniform', 'quantile', 'normal']:
+            raise ValueError("'strategy' must be either 'uniform', 'quantile' "
+                             "or 'normal' (got {0})".format(self.strategy))
         if not ((self.alphabet is None)
                 or (self.alphabet == 'ordinal')
                 or (isinstance(self.alphabet, (list, tuple, np.ndarray)))):
@@ -108,7 +95,7 @@ class SymbolicAggregateApproximation(BaseEstimator, TransformerMixin):
         elif self.alphabet == 'ordinal':
             alphabet = 'ordinal'
         else:
-            alphabet = check_array(self.alphabet, ensure_2d=False, dtype=None)
+            alphabet = ca(self.alphabet, ensure_2d=False, dtype=None)
             if alphabet.shape != (self.num_letters,):
                 raise ValueError("If 'alphabet' is array-like, its shape "
                                  "must be equal to (num_letters,).")
