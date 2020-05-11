@@ -18,8 +18,8 @@ It is implemented as :class:`pyts.classification.SAXVSM`.
 import numpy as np
 import matplotlib.pyplot as plt
 # from utilities.piecewise import PiecewiseAggregateApproximation
-from ..datasets.loadDataSet import load_gunpoint
-from ..classification.BOWTFIDF import BoWTransform
+from ..datasets import load_gunpoint
+from ..classification import BoWTransform
 
 # Toy dataset
 X_train, X_test, y_train, y_test = load_gunpoint(return_X_y=True)
