@@ -9,12 +9,14 @@ from sklearn.utils.validation import check_array
 
 
 import warnings
-from ...piecewise import PiecewiseAggregateApproximation
+from cs2270Repository.utilities.piecewise import PiecewiseAggregateApproximation
 from saxGeneration.symbolApprox import SymbolicAggregateApproximation
 
 
 from preprocessing.scale import StandardScaler
 from utilities.segmentation import windowed_view
+
+import utilities.piecewise.PiecewiseAggregateApproximation
 
 
 class BagOfWords(be, mt):

@@ -10,7 +10,7 @@ from sklearn.base import ClassifierMixin as cm
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from .bag_of_words import BagOfWords
+from ..bagOfWords import BagOfWords
 import numpy as np
 
 
